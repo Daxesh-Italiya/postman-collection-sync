@@ -59,6 +59,7 @@ The script will generate:
 
 *   **Name**: Daxesh Italiya
 *   **Post**: Founder and CTO of TST-Technology
-*   **LinkedIn**: [https://www.linkedin.com/in/daxesh-italiya/](https://www.linkedin.com/in/daxesh-italiya/)
-*   **X (Twitter)**: [https://x.com/DaxeshI](https://x.com/DaxeshI)
-*   **GitHub**: [https://github.com/Daxesh-Italiya](https://github.com/Daxesh-Italiya)
+
+[<img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" />](https://www.linkedin.com/in/daxesh-italiya/) 
+[<img src="https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white" />](https://x.com/DaxeshI) 
+[<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" />](https://github.com/Daxesh-Italiya)
