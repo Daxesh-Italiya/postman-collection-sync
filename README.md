@@ -57,8 +57,8 @@ The script will generate:
 
 ## Creator Info
 
-**Name**: Daxesh Italiya
-**Post**: Founder and CTO of TST-Technology
-**LinkedIn**: [https://www.linkedin.com/in/daxesh-italiya/](https://www.linkedin.com/in/daxesh-italiya/)
-**X (Twitter)**: [https://x.com/DaxeshI](https://x.com/DaxeshI)
-**GitHub**: [https://github.com/Daxesh-Italiya](https://github.com/Daxesh-Italiya)
+*   **Name**: Daxesh Italiya
+*   **Post**: Founder and CTO of TST-Technology
+*   **LinkedIn**: [https://www.linkedin.com/in/daxesh-italiya/](https://www.linkedin.com/in/daxesh-italiya/)
+*   **X (Twitter)**: [https://x.com/DaxeshI](https://x.com/DaxeshI)
+*   **GitHub**: [https://github.com/Daxesh-Italiya](https://github.com/Daxesh-Italiya)
