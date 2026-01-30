@@ -2,6 +2,21 @@
 
 Syncs a Postman Collection to local Markdown documentation.
 
+## Requirements
+
+*   Node.js (v14 or higher recommended)
+*   npm (Node Package Manager)
+
+## Why Use This? (AI Agent Context Gap)
+
+Coding assistants (like GitHub Copilot, Cursor, or Agentic AI) often lack awareness of your external API documentation. Developers usually have to manually copy-paste JSON or explain endpoints, which is tedious and error-prone.
+
+This tool automates the process:
+
+1.  **Configure once**: Set your API Key and Collection details.
+2.  **Sync anytime**: Run one command to fetch the latest API specs.
+3.  **AI-Ready**: Generates structured Markdown files that are easily readable by LLMs, ensuring your AI assistant has the full context of your API to write accurate code.
+
 ## How to Generate Postman API Key
 
 1.  Login to **Postman** in your web browser.
