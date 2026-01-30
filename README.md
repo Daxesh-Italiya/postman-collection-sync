@@ -54,3 +54,11 @@ This tool automates the process:
 The script will generate:
 -   `api-documentation/collection.json`: The raw Postman collection backup.
 -   `api-documentation/<Folder Name>/<Request Name>.md`: Detailed Markdown documentation for each request.
+
+## Creator Info
+
+**Name**: Daxesh Italiya
+**Post**: Founder and CTO of TST-Technology
+**LinkedIn**: [https://www.linkedin.com/in/daxesh-italiya/](https://www.linkedin.com/in/daxesh-italiya/)
+**X (Twitter)**: [https://x.com/DaxeshI](https://x.com/DaxeshI)
+**GitHub**: [https://github.com/Daxesh-Italiya](https://github.com/Daxesh-Italiya)
