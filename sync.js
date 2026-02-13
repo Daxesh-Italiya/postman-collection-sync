@@ -12,6 +12,9 @@ const CONFIG = {
   outputDir: process.env.OUTPUT_DIR
     ? path.resolve(__dirname, process.env.OUTPUT_DIR)
     : path.join(__dirname, "api-documentation"),
+  apiEndpointsDir: process.env.API_ENDPOINTS_DIR
+    ? path.resolve(__dirname, process.env.API_ENDPOINTS_DIR)
+    : null, // If null/empty, don't create API endpoint objects
 };
 
 // Validate Config
@@ -163,6 +166,130 @@ const generateMarkdown = (item, savedPath) => {
   fs.writeFileSync(path.join(savedPath, fileName), mdContent);
 };
 
+// Convert folder name to constant name (e.g., "user" -> "USER", "ComponentVersions" -> "COMPONENT_VERSIONS")
+const toConstantName = (name) => {
+  return name
+    .replace(/[^a-zA-Z0-9]/g, "_") // Replace special chars with underscore
+    .replace(/([a-z])([A-Z])/g, "$1_$2") // Insert underscore between camelCase
+    .toUpperCase();
+};
+
+// Convert request name to camelCase key (e.g., "Get All Users" -> "getAllUsers")
+const toCamelCase = (str) => {
+  return str
+    .replace(/[^a-zA-Z0-9]/g, " ")
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
+      return index === 0 ? word.toLowerCase() : word.toUpperCase();
+    })
+    .replace(/\s+/g, "");
+};
+
+// Extract endpoint path from URL (removes base URL and query params)
+const extractEndpoint = (url) => {
+  if (!url) return "/";
+
+  let pathStr = "";
+  if (typeof url === "string") {
+    pathStr = url;
+  } else if (url.path) {
+    pathStr = url.path.join("/");
+  } else if (url.raw) {
+    // Extract path from full URL
+    try {
+      const urlObj = new URL(url.raw);
+      pathStr = urlObj.pathname;
+    } catch {
+      // If not a full URL, use raw
+      pathStr = url.raw;
+    }
+  }
+
+  // Remove query string
+  pathStr = pathStr.split("?")[0];
+
+  // Ensure path starts with /
+  if (!pathStr.startsWith("/")) {
+    pathStr = "/" + pathStr;
+  }
+
+  return pathStr;
+};
+
+// Generate API endpoint object file
+const generateApiEndpointFile = (folderName, requests, outputPath) => {
+  const constantName = toConstantName(folderName);
+  const endpoints = {};
+
+  requests.forEach((req) => {
+    const key = toCamelCase(req.name);
+    const method = req.request?.method || "GET";
+    const endpointPath = extractEndpoint(req.request?.url);
+
+    endpoints[key] = {
+      type: method,
+      endpoint: endpointPath,
+    };
+  });
+
+  // Generate the file content
+  const fileContent = `/**
+ * ${folderName} API Endpoints
+ */
+export const ${constantName} = ${JSON.stringify(endpoints, null, 2).replace(/"([^"]+)":/g, "$1:")};
+
+export default ${constantName};
+`;
+
+  const fileName = `${folderName.toLowerCase().replace(/[^a-z0-9]/g, "-")}.js`;
+  fs.writeFileSync(path.join(outputPath, fileName), fileContent);
+  console.log(`  📝 Created: ${fileName}`);
+};
+
+// Collect requests from folders
+const collectFolderRequests = (items, basePath, folderMap) => {
+  items.forEach((item) => {
+    if (item.item) {
+      // It's a folder
+      const folderName = item.name.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+      const folderPath = path.join(basePath, folderName);
+      ensureDir(folderPath);
+
+      // Collect all requests in this folder
+      const requests = [];
+      const collectRequests = (folderItems) => {
+        folderItems.forEach((subItem) => {
+          if (subItem.item) {
+            // Nested folder - recurse
+            collectRequests(subItem.item);
+          } else if (subItem.request) {
+            // It's a request
+            requests.push(subItem);
+            generateMarkdown(subItem, folderPath);
+          }
+        });
+      };
+      collectRequests(item.item);
+
+      // Store requests for this folder
+      if (!folderMap[folderName]) {
+        folderMap[folderName] = [];
+      }
+      folderMap[folderName].push(...requests);
+
+      processItems(item.item, folderPath, folderMap);
+    } else if (item.request) {
+      // It's a request at root level
+      generateMarkdown(item, basePath);
+
+      // Add to "general" folder for API endpoints
+      if (!folderMap["general"]) {
+        folderMap["general"] = [];
+      }
+      folderMap["general"].push(item);
+    }
+  });
+};
+
 // Recursively process items (Folders or Requests)
 const processItems = (items, basePath) => {
   items.forEach((item) => {
@@ -193,12 +320,33 @@ const main = async () => {
       JSON.stringify(collection, null, 2),
     );
     console.log(
-      `✅ Collection JSON saved to api-documentation/collection.json`,
+      `✅ Collection JSON saved to ${path.relative(__dirname, CONFIG.outputDir)}/collection.json`,
     );
 
-    // Generate Markdown
+    // Generate Markdown and collect folder data
     console.log("📝 Generating Markdown documentation...");
-    processItems(collection.item, CONFIG.outputDir);
+
+    // If API endpoints dir is configured, use the new method
+    if (CONFIG.apiEndpointsDir) {
+      const folderMap = {};
+      collectFolderRequests(collection.item, CONFIG.outputDir, folderMap);
+
+      // Generate API endpoint files
+      console.log("📝 Generating API endpoint files...");
+      ensureDir(CONFIG.apiEndpointsDir);
+
+      for (const [folderName, requests] of Object.entries(folderMap)) {
+        if (requests.length > 0) {
+          generateApiEndpointFile(folderName, requests, CONFIG.apiEndpointsDir);
+        }
+      }
+      console.log(
+        `✅ API endpoint files saved to ${path.relative(__dirname, CONFIG.apiEndpointsDir)}/`,
+      );
+    } else {
+      // Just generate documentation
+      processItems(collection.item, CONFIG.outputDir);
+    }
 
     console.log("\n✨ Documentation sync complete!");
   } catch (error) {
